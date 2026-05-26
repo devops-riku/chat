@@ -23,6 +23,7 @@ def _set_auth_cookies(response: Response, access: str, refresh: str) -> None:
         samesite=settings.cookie_samesite,
         max_age=settings.jwt_access_token_expire_minutes * 60,
         path="/",
+        domain=settings.cookie_domain,
     )
     response.set_cookie(
         key=settings.refresh_token_cookie,
@@ -32,6 +33,7 @@ def _set_auth_cookies(response: Response, access: str, refresh: str) -> None:
         samesite=settings.cookie_samesite,
         max_age=settings.jwt_refresh_token_expire_days * 24 * 3600,
         path="/",
+        domain=settings.cookie_domain,
     )
 
 
@@ -71,8 +73,8 @@ async def refresh(
 
 @router.post("/logout")
 async def logout(response: Response) -> dict[str, str]:
-    response.delete_cookie(settings.access_token_cookie, path="/")
-    response.delete_cookie(settings.refresh_token_cookie, path="/")
+    response.delete_cookie(settings.access_token_cookie, path="/", domain=settings.cookie_domain)
+    response.delete_cookie(settings.refresh_token_cookie, path="/", domain=settings.cookie_domain)
     return {"status": "ok"}
 
 

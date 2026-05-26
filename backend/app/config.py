@@ -21,6 +21,7 @@ class Settings(BaseSettings):
 
     cookie_secure: bool = False
     cookie_samesite: str = "lax"
+    cookie_domain: str | None = None
     access_token_cookie: str = "access_token"
     refresh_token_cookie: str = "refresh_token"
 
