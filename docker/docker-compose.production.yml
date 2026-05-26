@@ -1,0 +1,143 @@
+name: chat
+
+services:
+  traefik:
+    image: traefik:latest
+    command:
+      - --configFile=/etc/traefik/traefik.yml
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../infrastructure/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - traefik_certs:/certs
+    restart: unless-stopped
+    networks:
+      - chat
+
+  chat-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-chat}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chat_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-chat}
+      PGDATABASE: ${POSTGRES_DB:-chat}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-chat} -d ${POSTGRES_DB:-chat}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - chat
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - chat
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-chat_minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-chat_minio_secret}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - chat
+
+  coturn:
+    image: coturn/coturn:latest
+    volumes:
+      - ../infrastructure/coturn/turnserver.conf:/etc/coturn/turnserver.conf:ro
+    ports:
+      - "3478:3478/udp"
+      - "3478:3478/tcp"
+      - "5349:5349/tcp"
+      - "49152-49200:49152-49200/udp"
+    restart: unless-stopped
+    networks:
+      - chat
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    env_file:
+      - .env.production
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-chat}:${POSTGRES_PASSWORD:-chat_secret}@chat-db:5432/${POSTGRES_DB:-chat}
+      REDIS_URL: redis://redis:6379/0
+      MINIO_ENDPOINT: minio:9000
+      BACKEND_PUBLIC_URL: ${BACKEND_PUBLIC_URL:-https://chat-api.linkerx.dev}
+      DEBUG: "false"
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://chat.linkerx.dev}
+    depends_on:
+      chat-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api.rule=Host(`${API_HOST:-chat-api.linkerx.dev}`)
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.tls.certresolver=letsencrypt
+      - traefik.http.services.api.loadbalancer.server.port=8000
+    restart: unless-stopped
+    networks:
+      - chat
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://chat-api.linkerx.dev}
+        NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL:-https://chat-api.linkerx.dev}
+        NEXT_PUBLIC_TURN_URL: turn:${DOMAIN:-linkerx.dev}:3478
+        NEXT_PUBLIC_TURN_USERNAME: ${TURN_USER:-chat}
+        NEXT_PUBLIC_TURN_CREDENTIAL: ${TURN_PASSWORD:-chat_turn_secret}
+    env_file:
+      - .env.production
+    depends_on:
+      - backend
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.app.rule=Host(`${APP_HOST:-chat.linkerx.dev}`)
+      - traefik.http.routers.app.entrypoints=websecure
+      - traefik.http.routers.app.tls.certresolver=letsencrypt
+      - traefik.http.services.app.loadbalancer.server.port=3000
+    restart: unless-stopped
+    networks:
+      - chat
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  traefik_certs:
+
+networks:
+  chat:
+    driver: bridge
+    name: chat

@@ -1,0 +1,15 @@
+api:
+  insecure: true
+
+entryPoints:
+  web:
+    address: ":80"
+
+providers:
+  docker:
+    endpoint: "npipe:////./pipe/docker_engine"
+    exposedByDefault: false
+    network: nexus
+
+log:
+  level: INFO

@@ -1,0 +1,24 @@
+# Development overlay — exposes ports directly (no Traefik required)
+services:
+  backend:
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://nexus:nexus_secret@postgres:5432/nexus_chat
+      REDIS_URL: redis://redis:6379/0
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+
+  frontend:
+    ports:
+      - "3000:3000"
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend.dev
+
+  postgres:
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
