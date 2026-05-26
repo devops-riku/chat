@@ -1,21 +1,6 @@
 name: chat
 
 services:
-  traefik:
-    image: traefik:latest
-    command:
-      - --configFile=/etc/traefik/traefik.yml
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ../infrastructure/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - traefik_certs:/certs
-    restart: unless-stopped
-    networks:
-      - chat
-
   chat-db:
     image: postgres:16-alpine
     environment:
@@ -105,6 +90,7 @@ services:
     restart: unless-stopped
     networks:
       - chat
+      - traefik-proxy
 
   frontend:
     build:
@@ -129,14 +115,17 @@ services:
     restart: unless-stopped
     networks:
       - chat
+      - traefik-proxy
 
 volumes:
   postgres_data:
   redis_data:
   minio_data:
-  traefik_certs:
 
 networks:
   chat:
     driver: bridge
     name: chat
+  traefik-proxy:
+    external: true
+    name: asseqr-system_app-network
