@@ -38,7 +38,7 @@ function AudioPlayer({ url, filename }: { url: string; filename: string }) {
     isNaN(s) ? "0:00" : `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
   return (
-    <div className="flex items-center gap-2 rounded-lg bg-zinc-700/50 px-3 py-2">
+    <div className="flex items-center gap-2 rounded-xl bg-[#1d1533] px-3 py-2">
       <audio
         ref={audioRef}
         src={url}
@@ -50,10 +50,10 @@ function AudioPlayer({ url, filename }: { url: string; filename: string }) {
         {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
       </Button>
       <div className="flex flex-1 flex-col gap-1">
-        <p className="truncate text-xs text-zinc-300">{filename}</p>
-        <div className="relative h-1 w-full rounded-full bg-zinc-600">
+        <p className="truncate text-xs text-slate-300">{filename}</p>
+        <div className="relative h-1 w-full rounded-full bg-violet-900/50">
           <div
-            className="h-full rounded-full bg-indigo-400 transition-all"
+            className="h-full rounded-full bg-violet-400 transition-all"
             style={{ width: duration ? `${(progress / duration) * 100}%` : "0%" }}
           />
         </div>
@@ -76,7 +76,7 @@ export function AttachmentPreview({ attachment, isOwn }: Props) {
         <img
           src={url}
           alt={filename}
-          className={cn("max-h-64 max-w-xs rounded-lg object-cover", isOwn && "ml-auto")}
+          className={cn("max-h-64 max-w-xs rounded-sm object-cover", isOwn && "ml-auto")}
         />
       </a>
     );
@@ -87,8 +87,8 @@ export function AttachmentPreview({ attachment, isOwn }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2">
-      <FileText className="h-5 w-5 shrink-0 text-zinc-400" />
+    <div className="flex items-center gap-2 rounded-xl border border-violet-800/40 bg-[#1d1533] px-3 py-2">
+      <FileText className="h-5 w-5 shrink-0 text-violet-300/70" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm text-zinc-200">{filename}</p>
         <p className="text-xs text-zinc-500">{fmt(size)}</p>

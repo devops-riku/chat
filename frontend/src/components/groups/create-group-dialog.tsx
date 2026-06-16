@@ -73,7 +73,7 @@ export function CreateGroupDialog({ open, onOpenChange }: Props) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm text-zinc-400">Group name</label>
+            <label className="mb-1 block text-sm text-violet-300/70">Group name</label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -83,7 +83,7 @@ export function CreateGroupDialog({ open, onOpenChange }: Props) {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-zinc-400">Description (optional)</label>
+            <label className="mb-1 block text-sm text-violet-300/70">Description (optional)</label>
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -92,25 +92,25 @@ export function CreateGroupDialog({ open, onOpenChange }: Props) {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-zinc-400">
+            <label className="mb-1 block text-sm text-violet-300/70">
               Add members ({selectedIds.size} selected)
             </label>
-            <div className="max-h-48 space-y-1 overflow-y-auto rounded-md border border-zinc-800 p-2">
+            <div className="max-h-48 space-y-1 overflow-y-auto rounded-xl border border-violet-800/40 bg-[#1d1533] p-2">
               {friends.length === 0 && (
-                <p className="py-2 text-center text-xs text-zinc-500">No friends to add yet.</p>
+                <p className="py-2 text-center text-xs text-violet-400/70">No friends to add yet.</p>
               )}
               {friends.map((f) => (
                 <button
                   type="button"
                   key={f.id}
                   onClick={() => toggle(f.id)}
-                  className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm transition ${
+                  className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition ${
                     selectedIds.has(f.id)
-                      ? "bg-indigo-600 text-white"
-                      : "text-zinc-300 hover:bg-zinc-800"
+                      ? "bg-violet-600 text-white"
+                      : "text-violet-200 hover:bg-[#2a1f4a]"
                   }`}
                 >
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-700 text-xs font-semibold">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-800 text-xs font-semibold">
                     {f.display_name[0].toUpperCase()}
                   </span>
                   {f.display_name}

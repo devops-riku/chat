@@ -18,8 +18,8 @@ sio = socketio.AsyncServer(
     async_mode="asgi",
     client_manager=redis_manager,
     cors_allowed_origins=settings.cors_origin_list,
-    ping_interval=10,   # send ping every 10s (default: 25s)
-    ping_timeout=10,    # declare dead if no pong in 10s (default: 20s)
+    ping_interval=25,   # send ping every 25s (Socket.IO default)
+    ping_timeout=20,    # declare dead if no pong in 20s (Socket.IO default)
     logger=False,
     engineio_logger=False,
 )

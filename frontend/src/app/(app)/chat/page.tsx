@@ -9,6 +9,7 @@ import { MembersPanel } from "@/components/layout/members-panel";
 import { Sidebar } from "@/components/layout/sidebar";
 import { useIdleDetection } from "@/hooks/use-idle-detection";
 import { useSocket } from "@/hooks/use-socket";
+import { useTabTitle } from "@/hooks/use-tab-title";
 import { useWebRTC } from "@/hooks/use-webrtc";
 import { useAuthStore } from "@/stores/auth-store";
 import { useChatStore } from "@/stores/chat-store";
@@ -16,10 +17,11 @@ import { useChatStore } from "@/stores/chat-store";
 export default function ChatPage() {
   const router = useRouter();
   const { isLoading, isAuthenticated, fetchMe } = useAuthStore();
-  const { loadRooms, loadConversations, loadFriends, loadFriendRequests, loadUsers, loadBlocked, loadBlockingMe } = useChatStore();
+  const { loadRooms, loadConversations, loadFriends, loadFriendRequests, loadUsers, loadBlocked, loadBlockingMe, restoreActiveTarget, loadMessages } = useChatStore();
 
   useSocket();
   useIdleDetection();
+  useTabTitle();
   const webrtc = useWebRTC();
 
   useEffect(() => {
@@ -42,9 +44,12 @@ export default function ChatPage() {
         loadUsers(),
         loadBlocked(),
         loadBlockingMe(),
-      ]);
+      ]).then(() => {
+        restoreActiveTarget();
+        void loadMessages();
+      });
     }
-  }, [isAuthenticated, loadRooms, loadConversations, loadFriends, loadFriendRequests, loadUsers]);
+  }, [isAuthenticated, loadRooms, loadConversations, loadFriends, loadFriendRequests, loadUsers, restoreActiveTarget, loadMessages]);
 
   if (isLoading) {
     return (

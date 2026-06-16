@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { getSocket } from "@/lib/socket";
+import { connectSocket, getSocket } from "@/lib/socket";
 import { useAuthStore } from "@/stores/auth-store";
 
 const IDLE_TIMEOUT_MS = 5 * 60 * 1_000; // 5 minutes
@@ -36,6 +36,11 @@ export function useIdleDetection() {
       if (document.hidden) {
         goIdle();
       } else {
+        // Reconnect immediately if socket dropped while in background
+        const s = getSocket();
+        if (!s.connected) {
+          connectSocket();
+        }
         goActive();
       }
     };

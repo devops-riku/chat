@@ -5,7 +5,7 @@ const publicPaths = ["/login", "/register"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const hasToken = request.cookies.has("access_token");
+  const hasToken = request.cookies.has("access_token") || request.cookies.has("refresh_token");
 
   if (publicPaths.includes(pathname) && hasToken) {
     return NextResponse.redirect(new URL("/chat", request.url));

@@ -19,8 +19,10 @@ export function useSocket() {
   const setTyping = useChatStore((s) => s.setTyping);
   const setPresence = useChatStore((s) => s.setPresence);
   const markMessageSeen = useChatStore((s) => s.markMessageSeen);
+  const incrementUnread = useChatStore((s) => s.incrementUnread);
   const activeTarget = useChatStore((s) => s.activeTarget);
   const joinedRef = useRef<string | null>(null);
+  const activeTargetRef = useRef(activeTarget);
 
   // Tell the server we're going offline before the tab closes, then disconnect.
   // This guarantees the server marks the user offline immediately rather than
@@ -38,6 +40,10 @@ export function useSocket() {
   }, []);
 
   useEffect(() => {
+    activeTargetRef.current = activeTarget;
+  }, [activeTarget]);
+
+  useEffect(() => {
     if (!isAuthenticated) {
       disconnectSocket();
       return;
@@ -45,8 +51,32 @@ export function useSocket() {
 
     const socket = connectSocket();
 
+    const onConnect = () => {
+      // Reset joinedRef so the join-room effect below re-emits join_room/join_dm
+      joinedRef.current = null;
+      // Immediately re-join the active target so we don't wait for the effect cycle
+      const target = activeTargetRef.current;
+      if (target) {
+        if (target.type === "room") {
+          socket.emit("join_room", { room_id: target.room.id });
+        } else {
+          socket.emit("join_dm", { conversation_id: target.conversation.id });
+        }
+      }
+    };
+    socket.on("connect", onConnect);
+
     socket.on("new_message", (message: Message) => {
       addMessage(message);
+      const me = useAuthStore.getState().user;
+      if (message.author_id !== me?.id) {
+        const msgKey = message.room_id ? `room:${message.room_id}` : `dm:${message.conversation_id}`;
+        const target = activeTargetRef.current;
+        const activeKey = target
+          ? (target.type === "room" ? `room:${target.room.id}` : `dm:${target.conversation.id}`)
+          : null;
+        if (msgKey !== activeKey) incrementUnread(msgKey);
+      }
     });
 
     // dm_notification fires on the personal user channel when a DM arrives in
@@ -94,6 +124,7 @@ export function useSocket() {
     });
 
     return () => {
+      socket.off("connect", onConnect);
       socket.off("new_message");
       socket.off("dm_notification");
       socket.off("typing");
@@ -106,7 +137,7 @@ export function useSocket() {
       socket.off("friend_request_received");
       socket.off("friend_request_accepted");
     };
-  }, [isAuthenticated, addMessage, removeMessage, removeGroup, addBlockedBy, removeBlockedBy, addFriendRequest, removeFriendRequest, loadFriends, setTyping, setPresence, markMessageSeen]);
+  }, [isAuthenticated, addMessage, removeMessage, removeGroup, addBlockedBy, removeBlockedBy, addFriendRequest, removeFriendRequest, loadFriends, setTyping, setPresence, markMessageSeen, incrementUnread]);
 
   useEffect(() => {
     if (!isAuthenticated || !activeTarget) return;

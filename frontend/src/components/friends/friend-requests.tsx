@@ -12,11 +12,11 @@ export function FriendRequests() {
   if (friendRequests.length === 0) return null;
 
   return (
-    <div className="mb-3 rounded-lg border border-indigo-900/50 bg-indigo-950/40 p-2">
-      <p className="mb-2 px-1 text-xs font-semibold uppercase text-indigo-300">Friend requests</p>
+    <div className="mb-3 rounded-xl border border-violet-900/50 bg-violet-950/20 p-2">
+      <p className="mb-2 px-1 text-xs font-semibold uppercase text-violet-300">Friend requests</p>
       {friendRequests.map((req) => (
-        <div key={req.id} className="mb-1 flex items-center justify-between gap-2 rounded-md px-1 py-1">
-          <span className="truncate text-sm text-zinc-200">
+        <div key={req.id} className="mb-1 flex items-center justify-between gap-2 rounded-lg px-1 py-1 hover:bg-[#1d1533]">
+          <span className="truncate text-sm text-violet-200">
             {req.friend?.display_name || "Someone"}
           </span>
           <div className="flex shrink-0 gap-1">

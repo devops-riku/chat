@@ -66,7 +66,7 @@ export function AudioRecorder({ onRecorded, onCancel }: Props) {
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-red-900/50 bg-red-950/30 px-3 py-2">
+    <div className="flex items-center gap-3 rounded-xl border border-red-800/40 bg-red-950/20 px-3 py-2">
       <span className={cn("h-2 w-2 rounded-full bg-red-500", isRecording && "animate-pulse")} />
       <span className="min-w-[3rem] font-mono text-sm text-red-300">{fmt(seconds)}</span>
       <span className="flex-1 text-sm text-zinc-400">Recording…</span>

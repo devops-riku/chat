@@ -37,8 +37,8 @@ export function MembersPanel({ onCall }: Props) {
   };
 
   return (
-    <aside className="hidden w-56 flex-col border-l border-zinc-700 bg-zinc-950 lg:flex">
-      <div className="border-b border-zinc-800 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+    <aside className="hidden w-56 flex-col border-l border-violet-900/40 bg-[#150e24] lg:flex">
+      <div className="border-b border-violet-900/40 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-violet-400/70">
         Members — {displayUsers.length}
       </div>
       <ScrollArea className="flex-1 px-2 py-2">
@@ -50,7 +50,7 @@ export function MembersPanel({ onCall }: Props) {
           return (
             <div
               key={user.id}
-              className="group flex items-center gap-2 rounded-md px-2 py-2 hover:bg-zinc-900"
+              className="group flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-[#1d1533]"
             >
               <div className="relative">
                 <Avatar className="h-8 w-8">
@@ -58,14 +58,14 @@ export function MembersPanel({ onCall }: Props) {
                 </Avatar>
                 <span
                   className={cn(
-                    "absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-zinc-950",
+                    "absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#150e24]",
                     presenceColor(isOnline, lastSeenAt, isIdle),
                   )}
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-zinc-200">{user.display_name}</p>
-                <p className="truncate text-xs text-zinc-500">{presenceLabel(isOnline, lastSeenAt, isIdle)}</p>
+                <p className="truncate text-sm font-medium text-violet-50">{user.display_name}</p>
+                <p className="truncate text-xs text-violet-400/70">{presenceLabel(isOnline, lastSeenAt, isIdle)}</p>
               </div>
               <div className="flex gap-0.5 opacity-0 transition group-hover:opacity-100">
                 <Button

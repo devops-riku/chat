@@ -64,10 +64,10 @@ function EmojiPicker({ onSelect, onClose }: { onSelect: (e: string) => void; onC
   return (
     <div
       ref={ref}
-      className="absolute bottom-full right-0 mb-2 flex w-[320px] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#13172a] shadow-2xl shadow-black/60"
+      className="absolute bottom-full right-0 mb-2 flex w-[320px] flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-[#1a1d35] shadow-sm shadow-black/70"
     >
       {/* Category tabs */}
-      <div className="flex overflow-x-auto border-b border-white/[0.06] px-2 pt-2 pb-0 gap-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex overflow-x-auto border-b border-white/[0.05] px-2 pt-2 pb-0 gap-1 bg-[#13152a] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {EMOJI_CATEGORIES.map((cat, i) => (
           <button
             key={i}
@@ -75,8 +75,8 @@ function EmojiPicker({ onSelect, onClose }: { onSelect: (e: string) => void; onC
             onClick={() => setActiveCategory(i)}
             className={`shrink-0 rounded-t-lg px-2 py-1.5 text-xs transition-colors ${
               activeCategory === i
-                ? "bg-indigo-600/20 text-indigo-300"
-                : "text-zinc-500 hover:text-zinc-300"
+                ? "bg-violet-600/20 text-violet-300"
+                : "text-violet-400/60 hover:text-violet-200"
             }`}
           >
             {cat.label.split(" ")[0]}
@@ -85,18 +85,18 @@ function EmojiPicker({ onSelect, onClose }: { onSelect: (e: string) => void; onC
       </div>
 
       {/* Category label */}
-      <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
+      <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-violet-400/60">
         {EMOJI_CATEGORIES[activeCategory].label.split(" ").slice(1).join(" ")}
       </p>
 
       {/* Emoji grid */}
-      <div className="grid grid-cols-8 gap-0.5 overflow-y-auto px-2 pb-3 max-h-[200px] [scrollbar-width:thin] [scrollbar-color:#3f3f46_transparent]">
+      <div className="grid grid-cols-8 gap-0.5 overflow-y-auto px-2 pb-3 max-h-[200px] [scrollbar-width:thin] [scrollbar-color:#2a1f4a_transparent]">
         {EMOJI_CATEGORIES[activeCategory].emojis.map((emoji, i) => (
           <button
             key={i}
             type="button"
             onClick={() => onSelect(emoji)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-xl hover:bg-white/[0.08] transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-xl hover:bg-[#2a1f4a] transition-colors"
             title={emoji}
           >
             {emoji}
@@ -237,7 +237,7 @@ export function MessageInput() {
 
   if (!activeTarget) {
     return (
-      <div className="border-t border-white/[0.06] px-4 py-6 text-center text-sm text-zinc-600">
+      <div className="border-t border-white/[0.06] px-4 py-6 text-center text-sm text-[#4a4e6a]">
         Select a group or conversation to start chatting
       </div>
     );
@@ -245,10 +245,10 @@ export function MessageInput() {
 
   if (iBlockedThem) {
     return (
-      <div className="border-t border-white/[0.06] px-4 py-4 text-center text-sm text-zinc-500">
+      <div className="border-t border-white/[0.06] px-4 py-4 text-center text-sm text-[#8b8fa8]">
         You have blocked this user.{" "}
         <button
-          className="text-indigo-400 hover:underline"
+          className="text-violet-500 hover:underline"
           onClick={() => otherUserId && useChatStore.getState().unblockUser(otherUserId)}
         >
           Unblock
@@ -260,7 +260,7 @@ export function MessageInput() {
 
   if (theyBlockedMe) {
     return (
-      <div className="border-t border-white/[0.06] px-4 py-4 text-center text-sm text-zinc-500">
+      <div className="border-t border-white/[0.06] px-4 py-4 text-center text-sm text-[#8b8fa8]">
         You cannot send messages to this user.
       </div>
     );
@@ -272,12 +272,12 @@ export function MessageInput() {
     <div className="border-t border-white/[0.06] px-4 py-3">
       {/* Reply preview */}
       {replyingTo && (
-        <div className="mb-2 flex items-center justify-between rounded-xl border border-indigo-900/50 bg-indigo-950/40 px-3 py-2">
+        <div className="mb-2 flex items-center justify-between rounded-lg border border-white/[0.06] bg-[#0d0f1a] px-3 py-2">
           <div className="min-w-0 text-sm">
-            <p className="text-xs text-indigo-400">Replying to {replyingTo.author?.display_name || "Unknown"}</p>
-            <p className="truncate text-zinc-400">{replyingTo.content}</p>
+            <p className="text-xs text-violet-400">Replying to {replyingTo.author?.display_name || "Unknown"}</p>
+            <p className="truncate text-[#8b8fa8]">{replyingTo.content}</p>
           </div>
-          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-zinc-500 hover:text-zinc-200" onClick={() => setReplyingTo(null)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-[#4a4e6a] hover:text-white" onClick={() => setReplyingTo(null)}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -287,9 +287,9 @@ export function MessageInput() {
       {attachments.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-2">
           {attachments.map((a) => (
-            <div key={a.id} className="flex items-center gap-1 rounded-full border border-white/[0.08] bg-white/[0.05] px-3 py-1 text-xs text-zinc-300">
+            <div key={a.id} className="flex items-center gap-1 rounded-full border border-white/[0.06] bg-[#1e2040] px-3 py-1 text-xs text-[#c8cde8]">
               <span className="max-w-[120px] truncate">{a.filename}</span>
-              <button onClick={() => removeAttachment(a.id)} className="text-zinc-500 hover:text-zinc-200">
+              <button onClick={() => removeAttachment(a.id)} className="text-[#4a4e6a] hover:text-white">
                 <X className="h-3 w-3" />
               </button>
             </div>
@@ -302,7 +302,7 @@ export function MessageInput() {
       ) : (
         <form
           onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-[#1a1d35] px-3 py-2"
         >
           <input
             ref={fileInputRef}
@@ -318,7 +318,7 @@ export function MessageInput() {
             type="button"
             variant="ghost"
             size="icon"
-            className="h-9 w-9 shrink-0 rounded-full text-zinc-500 hover:text-zinc-300"
+            className="h-8 w-8 shrink-0 text-[#4a4e6a] hover:text-white"
             title="Attach file"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
@@ -331,7 +331,7 @@ export function MessageInput() {
             type="button"
             variant="ghost"
             size="icon"
-            className="h-9 w-9 shrink-0 rounded-full text-zinc-500 hover:text-zinc-300"
+            className="h-8 w-8 shrink-0 text-[#4a4e6a] hover:text-white"
             title="Record audio"
             onClick={() => setRecording(true)}
             disabled={uploading}
@@ -339,23 +339,25 @@ export function MessageInput() {
             <Mic className="h-4 w-4" />
           </Button>
 
-          {/* Input pill */}
-          <div className="relative flex flex-1 items-center gap-2 rounded-full border border-white/[0.08] bg-[#1a1f2e] px-4 py-2.5">
-            <input
-              ref={inputRef}
-              type="text"
-              value={content}
-              onChange={(e) => handleChange(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-              onPaste={handlePaste}
-              placeholder={uploading ? "Uploading…" : `Type a message${targetLabel ? ` to ${targetLabel}` : ""}...`}
-              className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none"
-              disabled={uploading}
-            />
+          {/* Text input */}
+          <input
+            ref={inputRef}
+            type="text"
+            value={content}
+            onChange={(e) => handleChange(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+            onPaste={handlePaste}
+            placeholder={uploading ? "Uploading…" : `Type a message${targetLabel ? ` to ${targetLabel}` : ""}...`}
+            className="flex-1 bg-transparent text-sm text-white placeholder:text-[#4a4e6a] focus:outline-none"
+            disabled={uploading}
+          />
+
+          {/* Emoji button */}
+          <div className="relative">
             <button
               type="button"
               onClick={() => setShowEmoji((v) => !v)}
-              className={`shrink-0 transition-colors ${showEmoji ? "text-indigo-400" : "text-zinc-500 hover:text-zinc-300"}`}
+              className={`shrink-0 rounded-full transition-colors ${showEmoji ? "text-violet-400" : "text-[#4a4e6a] hover:text-white"}`}
               title="Emoji"
             >
               <Smile className="h-4 w-4" />
@@ -373,7 +375,7 @@ export function MessageInput() {
           <button
             type="submit"
             disabled={!canSend}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-900/40 transition-all hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-600 hover:bg-violet-500 text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Send className="h-4 w-4" />
           </button>

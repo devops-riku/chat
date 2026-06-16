@@ -40,11 +40,11 @@ export function RejoinCallBanner({ onRejoin }: Props) {
   };
 
   return (
-    <div className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 shadow-xl ring-1 ring-zinc-700">
+    <div className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-2xl bg-[#1d1533] px-4 py-3 shadow-lg shadow-violet-950/50 ring-1 ring-violet-800/40">
       <Phone className="h-4 w-4 shrink-0 text-emerald-400" />
-      <span className="text-sm text-zinc-200">
+      <span className="text-sm text-violet-200">
         Reconnect to call with{" "}
-        <span className="font-semibold text-zinc-100">{data.remoteDisplayName}</span>?
+        <span className="font-semibold text-violet-50">{data.remoteDisplayName}</span>?
       </span>
       <Button size="sm" className="bg-emerald-600 hover:bg-emerald-500" onClick={rejoin}>
         Rejoin

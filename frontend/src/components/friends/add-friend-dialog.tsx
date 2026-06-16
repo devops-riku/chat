@@ -101,21 +101,21 @@ export function AddFriendDialog({ open, onOpenChange }: Props) {
         {error && <p className="text-sm text-red-400">{error}</p>}
 
         {searched && results.length === 0 && !loading && (
-          <p className="text-sm text-zinc-500">No users found. Try a different username, display name, or email.</p>
+          <p className="text-sm text-violet-400/70">No users found. Try a different username, display name, or email.</p>
         )}
 
         <ul className="max-h-60 space-y-2 overflow-y-auto">
           {results.map((user) => (
             <li
               key={user.id}
-              className="flex items-center justify-between rounded-lg border border-zinc-800 px-3 py-2"
+              className="flex items-center justify-between rounded-xl border border-violet-800/40 bg-[#1d1533] px-3 py-2 hover:bg-[#2a1f4a] transition-colors"
             >
               <div>
-                <p className="text-sm font-medium text-zinc-100">{user.display_name}</p>
-                <p className="text-xs text-zinc-500">@{user.username}</p>
+                <p className="text-sm font-medium text-violet-50">{user.display_name}</p>
+                <p className="text-xs text-violet-400/70">@{user.username}</p>
               </div>
               {friendIds.has(user.id) ? (
-                <span className="text-xs text-zinc-500">Friends</span>
+                <span className="text-xs text-violet-400/70">Friends</span>
               ) : (
                 <Button size="sm" variant="secondary" onClick={() => handleAdd(user)}>
                   <UserPlus className="mr-1 h-3 w-3" />

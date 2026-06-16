@@ -29,7 +29,11 @@ type ChatState = {
   blockedByIds: Set<string>;
   // messageId → ordered list of reader userIds (real-time updates from socket)
   seenBy: Map<string, string[]>;
+  // "room:{id}" | "dm:{id}" → unread count
+  unreadCounts: Map<string, number>;
   setActiveTarget: (target: ChatTarget | null) => void;
+  incrementUnread: (key: string) => void;
+  clearUnread: (key: string) => void;
   markMessageSeen: (messageId: string, readerId: string) => void;
   setReplyingTo: (message: Message | null) => void;
   loadRooms: () => Promise<void>;
@@ -60,7 +64,10 @@ type ChatState = {
   removeBlockedBy: (userId: string) => void;
   deleteGroup: (roomId: string) => Promise<void>;
   removeGroup: (roomId: string) => void;
+  restoreActiveTarget: () => void;
 };
+
+const ACTIVE_TARGET_KEY = "chat_active_target";
 
 export const useChatStore = create<ChatState>((set, get) => ({
   rooms: [],
@@ -78,9 +85,59 @@ export const useChatStore = create<ChatState>((set, get) => ({
   blockedUserIds: new Set(),
   blockedByIds: new Set(),
   seenBy: new Map(),
+  unreadCounts: new Map(),
 
-  setActiveTarget: (target) =>
-    set({ activeTarget: target, messages: [], hasMoreMessages: false, loadingOlderMessages: false, typingUsers: new Map(), replyingTo: null, seenBy: new Map() }),
+  setActiveTarget: (target) => {
+    try {
+      if (target) {
+        const ref = target.type === "room"
+          ? { type: "room" as const, id: target.room.id }
+          : { type: "dm" as const, id: target.conversation.id };
+        localStorage.setItem(ACTIVE_TARGET_KEY, JSON.stringify(ref));
+      } else {
+        localStorage.removeItem(ACTIVE_TARGET_KEY);
+      }
+    } catch {}
+    const unreadKey = target
+      ? (target.type === "room" ? `room:${target.room.id}` : `dm:${target.conversation.id}`)
+      : null;
+    const unreadCounts = new Map(get().unreadCounts);
+    if (unreadKey) unreadCounts.delete(unreadKey);
+    set({ activeTarget: target, messages: [], hasMoreMessages: false, loadingOlderMessages: false, typingUsers: new Map(), replyingTo: null, seenBy: new Map(), unreadCounts });
+  },
+
+  incrementUnread: (key) => {
+    set((s) => {
+      const unreadCounts = new Map(s.unreadCounts);
+      unreadCounts.set(key, (unreadCounts.get(key) ?? 0) + 1);
+      return { unreadCounts };
+    });
+  },
+
+  clearUnread: (key) => {
+    set((s) => {
+      const unreadCounts = new Map(s.unreadCounts);
+      unreadCounts.delete(key);
+      return { unreadCounts };
+    });
+  },
+
+  restoreActiveTarget: () => {
+    const { rooms, conversations, activeTarget, setActiveTarget } = get();
+    if (activeTarget) return;
+    try {
+      const raw = localStorage.getItem(ACTIVE_TARGET_KEY);
+      if (!raw) return;
+      const ref = JSON.parse(raw) as { type: "room" | "dm"; id: string };
+      if (ref.type === "room") {
+        const room = rooms.find((r) => r.id === ref.id);
+        if (room) setActiveTarget({ type: "room", room });
+      } else {
+        const conversation = conversations.find((c) => c.id === ref.id);
+        if (conversation) setActiveTarget({ type: "dm", conversation });
+      }
+    } catch {}
+  },
 
   markMessageSeen: (messageId, readerId) =>
     set((s) => {

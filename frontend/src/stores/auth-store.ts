@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { api, type User } from "@/lib/api";
+import { api, ApiError, type User } from "@/lib/api";
 import { disconnectSocket, getSocket } from "@/lib/socket";
 
 type AuthState = {
@@ -26,8 +26,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const user = await api.get<User>("/auth/me");
       set({ user, isAuthenticated: true, isLoading: false });
-    } catch {
-      set({ user: null, isAuthenticated: false, isLoading: false });
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        set({ user: null, isAuthenticated: false, isLoading: false });
+      } else {
+        set({ isLoading: false });
+      }
     }
   },
 
