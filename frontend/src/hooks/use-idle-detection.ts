@@ -24,10 +24,19 @@ export function useIdleDetection() {
 
     const goActive = () => {
       if (timerRef.current) clearTimeout(timerRef.current);
+      const s = getSocket();
+      // Reconnect immediately if socket dropped while user was idle
+      if (!s.connected) {
+        connectSocket();
+      }
       if (isIdleRef.current) {
         isIdleRef.current = false;
-        const s = getSocket();
-        if (s.connected) s.emit("set_active", {});
+        if (s.connected) {
+          s.emit("set_active", {});
+        } else {
+          // Emit once the socket finishes reconnecting
+          s.once("connect", () => s.emit("set_active", {}));
+        }
       }
       timerRef.current = setTimeout(goIdle, IDLE_TIMEOUT_MS);
     };
@@ -45,10 +54,39 @@ export function useIdleDetection() {
       }
     };
 
+    const handleOffline = () => {
+      // Network lost — go idle immediately and let the socket die naturally
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (!isIdleRef.current) {
+        isIdleRef.current = true;
+        const s = getSocket();
+        // Try to emit before the socket closes; fire-and-forget if already gone
+        if (s.connected) s.emit("set_idle", {});
+      }
+    };
+
+    const handleOnline = () => {
+      // Network restored — reconnect socket and go active
+      connectSocket();
+      isIdleRef.current = false;
+      const s = getSocket();
+      if (s.connected) {
+        s.emit("set_active", {});
+      } else {
+        s.once("connect", () => s.emit("set_active", {}));
+      }
+      timerRef.current = setTimeout(goIdle, IDLE_TIMEOUT_MS);
+    };
+
+    // Handle the case where the page loads while already offline
+    if (!navigator.onLine) handleOffline();
+
     for (const event of ACTIVITY_EVENTS) {
       window.addEventListener(event, goActive, { passive: true });
     }
     document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
 
     // Start the idle timer on mount
     timerRef.current = setTimeout(goIdle, IDLE_TIMEOUT_MS);
@@ -59,6 +97,8 @@ export function useIdleDetection() {
         window.removeEventListener(event, goActive);
       }
       document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
     };
   }, [isAuthenticated]);
 }

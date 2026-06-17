@@ -1,10 +1,11 @@
 "use client";
 
-import { ChevronLeft, MessageCircle, MoreVertical, Phone, Search, Users, Video } from "lucide-react";
+import { ChevronLeft, MessageCircle, MoreVertical, Phone, Search, Users, Video, WifiOff } from "lucide-react";
 import { MessageInput } from "@/components/chat/message-input";
 import { MessageList } from "@/components/chat/message-list";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useNetworkStatus } from "@/hooks/use-network-status";
 import { useChatStore } from "@/stores/chat-store";
 
 const AVATAR_PALETTE = [
@@ -24,6 +25,7 @@ export function ChatPanel({ onCall }: Props) {
   const activeTarget = useChatStore((s) => s.activeTarget);
   const setActiveTarget = useChatStore((s) => s.setActiveTarget);
   const onlineUsers = useChatStore((s) => s.onlineUsers);
+  const { isOnline } = useNetworkStatus();
 
   let title = "Chat";
 
@@ -141,6 +143,14 @@ export function ChatPanel({ onCall }: Props) {
           )}
         </div>
       </header>
+
+      {/* Offline banner */}
+      {!isOnline && (
+        <div className="flex items-center justify-center gap-2 bg-amber-500/10 border-b border-amber-500/20 px-4 py-2">
+          <WifiOff className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+          <p className="text-xs text-amber-400">You're offline — reconnecting when network returns</p>
+        </div>
+      )}
 
       {!activeTarget ? (
         <div className="hidden flex-1 flex-col items-center justify-center gap-4 md:flex">

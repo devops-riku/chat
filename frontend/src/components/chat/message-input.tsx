@@ -5,7 +5,8 @@ import { Mic, Paperclip, Send, Smile, X } from "lucide-react";
 import { AudioRecorder } from "@/components/chat/audio-recorder";
 import { Button } from "@/components/ui/button";
 import { uploadFile, type Attachment } from "@/lib/api";
-import { getSocket } from "@/lib/socket";
+import { connectSocket, getSocket } from "@/lib/socket";
+import { useNetworkStatus } from "@/hooks/use-network-status";
 import { useChatStore } from "@/stores/chat-store";
 
 // ─── Emoji data (Unicode 15.x / 16.x) ────────────────────────────────────────
@@ -122,6 +123,7 @@ export function MessageInput() {
   const setReplyingTo = useChatStore((s) => s.setReplyingTo);
   const blockedUserIds = useChatStore((s) => s.blockedUserIds);
   const blockedByIds = useChatStore((s) => s.blockedByIds);
+  const { isOnline } = useNetworkStatus();
 
   const otherUserId = activeTarget?.type === "dm" ? activeTarget.conversation.other_user?.id : null;
   const iBlockedThem = otherUserId ? blockedUserIds.has(otherUserId) : false;
@@ -174,7 +176,15 @@ export function MessageInput() {
       ...(replyingTo ? { parent_id: replyingTo.id } : {}),
     };
 
-    getSocket().emit("send_message", payload);
+    const sock = getSocket();
+    if (sock.connected) {
+      sock.emit("send_message", payload);
+    } else {
+      // Socket dropped (e.g. after long idle) — reconnect and send once live
+      connectSocket();
+      sock.once("connect", () => sock.emit("send_message", payload));
+    }
+
     setContent("");
     setAttachments([]);
     setReplyingTo(null);
@@ -266,7 +276,7 @@ export function MessageInput() {
     );
   }
 
-  const canSend = (content.trim().length > 0 || attachments.length > 0) && !uploading;
+  const canSend = (content.trim().length > 0 || attachments.length > 0) && !uploading && isOnline;
 
   return (
     <div className="border-t border-white/[0.06] px-4 py-3">
@@ -347,9 +357,9 @@ export function MessageInput() {
             onChange={(e) => handleChange(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
             onPaste={handlePaste}
-            placeholder={uploading ? "Uploading…" : `Type a message${targetLabel ? ` to ${targetLabel}` : ""}...`}
+            placeholder={!isOnline ? "You're offline…" : uploading ? "Uploading…" : `Type a message${targetLabel ? ` to ${targetLabel}` : ""}...`}
             className="flex-1 bg-transparent text-sm text-white placeholder:text-[#4a4e6a] focus:outline-none"
-            disabled={uploading}
+            disabled={uploading || !isOnline}
           />
 
           {/* Emoji button */}
