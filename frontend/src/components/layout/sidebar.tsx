@@ -306,10 +306,6 @@ export function Sidebar() {
             )}
             {conversations.map((conv) => {
               const other = conv.other_user;
-              const presence = other ? onlineUsers.get(other.id) : undefined;
-              const isOnline = presence?.isOnline ?? other?.is_online ?? false;
-              const isIdle = presence?.isIdle ?? false;
-              const lastSeenAt = presence?.lastSeenAt ?? other?.last_seen_at ?? null;
               const isActive = activeTarget?.type === "dm" && activeTarget.conversation.id === conv.id;
               const dmUnread = unreadCounts.get(`dm:${conv.id}`) ?? 0;
 

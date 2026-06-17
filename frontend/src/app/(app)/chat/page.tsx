@@ -49,7 +49,7 @@ export default function ChatPage() {
         void loadMessages();
       });
     }
-  }, [isAuthenticated, loadRooms, loadConversations, loadFriends, loadFriendRequests, loadUsers, restoreActiveTarget, loadMessages]);
+  }, [isAuthenticated, loadRooms, loadConversations, loadFriends, loadFriendRequests, loadUsers, loadBlocked, loadBlockingMe, restoreActiveTarget, loadMessages]);
 
   if (isLoading) {
     return (

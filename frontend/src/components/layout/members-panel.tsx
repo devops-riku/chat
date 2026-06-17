@@ -15,7 +15,6 @@ type Props = {
 
 export function MembersPanel({ onCall }: Props) {
   usePresenceTick();
-  const friends = useChatStore((s) => s.friends);
   const users = useChatStore((s) => s.users);
   const onlineUsers = useChatStore((s) => s.onlineUsers);
   const startDm = useChatStore((s) => s.startDm);

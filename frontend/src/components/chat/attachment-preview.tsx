@@ -73,6 +73,7 @@ export function AttachmentPreview({ attachment, isOwn }: Props) {
   if (isImage) {
     return (
       <a href={url} target="_blank" rel="noopener noreferrer">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={url}
           alt={filename}

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, MessageCircle, MoreVertical, Phone, Search, Users, Video, WifiOff } from "lucide-react";
+import { ChevronLeft, MessageCircle, MoreVertical, Phone, Search, Video, WifiOff } from "lucide-react";
 import { MessageInput } from "@/components/chat/message-input";
 import { MessageList } from "@/components/chat/message-list";
 import { Button } from "@/components/ui/button";
@@ -148,7 +148,7 @@ export function ChatPanel({ onCall }: Props) {
       {!isNetworkOnline && (
         <div className="flex items-center justify-center gap-2 bg-amber-500/10 border-b border-amber-500/20 px-4 py-2">
           <WifiOff className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-          <p className="text-xs text-amber-400">You're offline — reconnecting when network returns</p>
+          <p className="text-xs text-amber-400">You&apos;re offline — reconnecting when network returns</p>
         </div>
       )}
 
