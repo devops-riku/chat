@@ -25,7 +25,7 @@ export function ChatPanel({ onCall }: Props) {
   const activeTarget = useChatStore((s) => s.activeTarget);
   const setActiveTarget = useChatStore((s) => s.setActiveTarget);
   const onlineUsers = useChatStore((s) => s.onlineUsers);
-  const { isOnline } = useNetworkStatus();
+  const { isOnline: isNetworkOnline } = useNetworkStatus();
 
   let title = "Chat";
 
@@ -145,7 +145,7 @@ export function ChatPanel({ onCall }: Props) {
       </header>
 
       {/* Offline banner */}
-      {!isOnline && (
+      {!isNetworkOnline && (
         <div className="flex items-center justify-center gap-2 bg-amber-500/10 border-b border-amber-500/20 px-4 py-2">
           <WifiOff className="h-3.5 w-3.5 text-amber-400 shrink-0" />
           <p className="text-xs text-amber-400">You're offline — reconnecting when network returns</p>
