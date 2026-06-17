@@ -6,6 +6,7 @@ import { MessageList } from "@/components/chat/message-list";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNetworkStatus } from "@/hooks/use-network-status";
+import { presenceLabel } from "@/lib/presence";
 import { useChatStore } from "@/stores/chat-store";
 
 const AVATAR_PALETTE = [
@@ -36,7 +37,11 @@ export function ChatPanel({ onCall }: Props) {
   }
 
   const dmUser = activeTarget?.type === "dm" ? activeTarget.conversation.other_user : null;
-  const isOnline = dmUser ? (onlineUsers.get(dmUser.id)?.isOnline ?? dmUser.is_online) : false;
+  const dmPresence = dmUser ? onlineUsers.get(dmUser.id) : undefined;
+  const isOnline = dmPresence?.isOnline ?? dmUser?.is_online ?? false;
+  const isIdle = dmPresence?.isIdle ?? false;
+  const lastSeenAt = dmPresence?.lastSeenAt ?? dmUser?.last_seen_at ?? null;
+  const statusLabel = dmUser ? presenceLabel(isOnline, lastSeenAt, isIdle) : "";
 
   return (
     <main
@@ -71,11 +76,14 @@ export function ChatPanel({ onCall }: Props) {
               <h2 className="truncate text-lg font-bold text-white leading-tight">
                 {dmUser.display_name}
               </h2>
-              {isOnline ? (
-                <span className="text-xs text-emerald-400">Active now</span>
-              ) : (
-                <span className="text-xs text-[#8b8fa8]">Offline</span>
-              )}
+              <span className={cn(
+                "text-xs",
+                isOnline && !isIdle ? "text-emerald-400" :
+                isOnline && isIdle  ? "text-yellow-400" :
+                "text-[#8b8fa8]"
+              )}>
+                {statusLabel}
+              </span>
             </div>
           </div>
         )}
